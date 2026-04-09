@@ -79,7 +79,17 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
-After install, set your ChatFate API key:
+After install, make your ChatFate API key available locally.
+
+Recommended one-time setup:
+
+```bash
+mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
+printf '%s' 'cf_sk_xxx' > ~/.chatfate/api_key && \
+chmod 600 ~/.chatfate/api_key
+```
+
+Alternative:
 
 ```bash
 export CHATFATE_API_KEY="cf_sk_xxx"
@@ -94,6 +104,7 @@ If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.
 ```bash
 export CHATFATE_BASE_URL="https://chatfate.life"
 export CHATFATE_API_KEY="cf_sk_xxx"
+export CHATFATE_API_KEY_FILE="$HOME/.chatfate/api_key"
 export CHATFATE_LANG="zh-CN"
 export CHATFATE_TIMEOUT_SEC="360"
 export CHATFATE_PROFILE="default"
@@ -105,6 +116,7 @@ For Codex / Claude Code / plugin usage, `CHATFATE_API_KEY` should be treated as 
 
 - each `/api/fateclawd/invoke` call consumes 1 credit
 - website chat can still remain on the anonymous browser route
+- helper lookup order is: `--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key`
 
 Identity notes:
 

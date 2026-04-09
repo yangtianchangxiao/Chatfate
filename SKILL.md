@@ -43,7 +43,21 @@ python3 scripts/chatfate_query.py \
   --question "分析我的事业"
 ```
 
-Before using the helper on hosted ChatFate, make sure `CHATFATE_API_KEY` is set when the deployment requires credits.
+Before using the helper on hosted ChatFate, make sure an API key is available when the deployment requires credits.
+
+Supported key sources, in order:
+
+1. `--api-key`
+2. `CHATFATE_API_KEY`
+3. local file `~/.chatfate/api_key`
+
+One-time local setup:
+
+```bash
+mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
+printf '%s' 'cf_sk_xxx' > ~/.chatfate/api_key && \
+chmod 600 ~/.chatfate/api_key
+```
 
 3. The helper now auto-manages local session continuity:
 
@@ -91,6 +105,8 @@ The helper script reads these optional environment variables:
   - default: `https://chatfate.life`
 - `CHATFATE_API_KEY`
   - bearer token for hosted deployments that require API key + credits
+- `CHATFATE_API_KEY_FILE`
+  - optional path override for a local key file; default is `~/.chatfate/api_key`
 - `CHATFATE_TIMEOUT_SEC`
   - default: `360`
 - `CHATFATE_LANG`

@@ -75,9 +75,42 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def state_file_path() -> Path:
+def state_root_dir() -> Path:
     base = os.getenv("CHATFATE_STATE_DIR", "~/.chatfate")
-    return Path(base).expanduser() / "sessions.json"
+    return Path(base).expanduser()
+
+
+def state_file_path() -> Path:
+    return state_root_dir() / "sessions.json"
+
+
+def api_key_file_path() -> Path:
+    override = str(os.getenv("CHATFATE_API_KEY_FILE") or "").strip()
+    if override:
+        return Path(override).expanduser()
+    return state_root_dir() / "api_key"
+
+
+def load_api_key_from_file(path: Path) -> Optional[str]:
+    try:
+        if not path.exists():
+            return None
+        value = path.read_text(encoding="utf-8").strip()
+        return value or None
+    except Exception:
+        return None
+
+
+def resolve_api_key(args: argparse.Namespace) -> Optional[str]:
+    cli_value = str(args.api_key or "").strip()
+    if cli_value:
+        return cli_value
+
+    env_value = str(os.getenv("CHATFATE_API_KEY") or "").strip()
+    if env_value:
+        return env_value
+
+    return load_api_key_from_file(api_key_file_path())
 
 
 def load_state(path: Path) -> Dict[str, Any]:
@@ -366,7 +399,7 @@ def main() -> int:
         print("CHATFATE base URL is empty.", file=sys.stderr)
         return 2
 
-    api_key = (args.api_key or "").strip() or None
+    api_key = resolve_api_key(args)
 
     try:
         session_meta = ensure_session(args, birth_time_index, base_url, api_key)
@@ -394,6 +427,14 @@ def main() -> int:
         )
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="ignore")
+        if exc.code == 401 and "api_key_required" in body:
+            key_path = api_key_file_path()
+            print(
+                "API key required. Set CHATFATE_API_KEY or save a one-time local key with:\n"
+                f"mkdir -p '{key_path.parent}' && chmod 700 '{key_path.parent}' && "
+                f"printf '%s' 'cf_sk_xxx' > '{key_path}' && chmod 600 '{key_path}'",
+                file=sys.stderr,
+            )
         print(f"HTTP {exc.code}: {body}", file=sys.stderr)
         return 1
     except urllib.error.URLError as exc:

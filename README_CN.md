@@ -52,9 +52,17 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
-安装完成后，还需要设置你的 ChatFate API key；之后在 Codex 对话里直接提问即可。只要已经提供出生信息，Codex 就可以调用这个 skill。
+安装完成后，还需要让本地能读到你的 ChatFate API key；之后在 Codex 对话里直接提问即可。只要已经提供出生信息，Codex 就可以调用这个 skill。
 
-推荐再执行：
+推荐的一次性配置方式：
+
+```bash
+mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
+printf '%s' 'cf_sk_xxx' > ~/.chatfate/api_key && \
+chmod 600 ~/.chatfate/api_key
+```
+
+也支持：
 
 ```bash
 export CHATFATE_API_KEY="cf_sk_xxx"
@@ -188,6 +196,7 @@ POST https://chatfate.life/api/fateclawd/invoke
 ```bash
 export CHATFATE_BASE_URL="https://chatfate.life"
 export CHATFATE_API_KEY="cf_sk_xxx"
+export CHATFATE_API_KEY_FILE="$HOME/.chatfate/api_key"
 export CHATFATE_LANG="zh-CN"
 export CHATFATE_TIMEOUT_SEC="360"
 export CHATFATE_PROFILE="default"
@@ -200,6 +209,7 @@ export CHATFATE_STATE_DIR="$HOME/.chatfate"
 - 当前对外的 Codex / Claude Code / plugin 调用，默认走 API key + credits
 - 每调用一次 `/api/fateclawd/invoke`，扣 1 credit
 - 网站前台聊天仍然可以继续走匿名网页流，不和外部 agent key 混在一起
+- helper 会按这个顺序找 key：`--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key`
 - `client_id` 表示“这一台本地安装的稳定身份”；不传时 helper 会自动生成并持久化
 - `session_id` 表示一条具体对话线程
 - `profile` 是本地线程别名，用来隔离同命盘下的多个主题对话
