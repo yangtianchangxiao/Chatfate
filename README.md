@@ -113,6 +113,23 @@ Identity notes:
 - `看看我的感情`
 - `分析未来十年的家庭与房产走势`
 
+## How end users should use it
+
+Do not overload end users with helper flags unless they explicitly want advanced control.
+
+Recommended guidance:
+
+1. first turn: provide birth info and one real question
+2. follow-up turns: ask naturally without repeating the whole template
+3. same chart, new topic: open a separate thread
+4. clean restart: explicitly ask for a fresh consultation
+
+Good first-turn examples:
+
+- `I was born on 1990-06-15 at 子时, male. First analyze my career structure.`
+- `Review the most important changes in my last ten years.`
+- `Look only at my family and housing trend for the next decade.`
+
 ## Required inputs
 
 The skill needs:
@@ -170,6 +187,24 @@ python3 scripts/chatfate_query.py \
   --profile annual-review \
   --new-session \
   --question "回溯一下前十年"
+```
+
+Advanced users can also isolate topics explicitly:
+
+```bash
+python3 scripts/chatfate_query.py \
+  --birth-date 1990-06-15 \
+  --birth-time 子时 \
+  --gender male \
+  --question "Analyze my career structure"
+
+python3 scripts/chatfate_query.py \
+  --birth-date 1990-06-15 \
+  --birth-time 子时 \
+  --gender male \
+  --profile love \
+  --new-session \
+  --question "Look only at my long-term relationship trend"
 ```
 
 ## API shape
