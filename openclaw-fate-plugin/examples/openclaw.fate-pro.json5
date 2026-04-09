@@ -1,0 +1,32 @@
+{
+  // High-capability profile (OpenClaw main line)
+  plugins: {
+    entries: {
+      fateclawd: {
+        enabled: true,
+        config: {
+          baseUrl: "https://chatfate.life",
+          endpointPath: "/api/fateclawd/invoke",
+          timeoutMs: 120000,
+          paymentMode: "off",
+          upgradeUrl: "https://chatfate.life/pricing",
+          traceEnabledDefault: true,
+          includeStepsDefault: true,
+          defaultLang: "zh-CN",
+        },
+      },
+    },
+  },
+  agents: {
+    list: [
+      {
+        id: "main",
+        default: true,
+        tools: {
+          // optional plugin tool must be allow-listed
+          allow: ["fate_reading"],
+        },
+      },
+    ],
+  },
+}

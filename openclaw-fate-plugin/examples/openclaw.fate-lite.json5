@@ -1,0 +1,32 @@
+{
+  // Low-cost / fast profile (Nano-style behavior via stricter defaults)
+  plugins: {
+    entries: {
+      fateclawd: {
+        enabled: true,
+        config: {
+          baseUrl: "https://chatfate.life",
+          endpointPath: "/api/fateclawd/invoke",
+          timeoutMs: 45000,
+          paymentMode: "off",
+          upgradeUrl: "https://chatfate.life/pricing",
+          traceEnabledDefault: false,
+          includeStepsDefault: false,
+          defaultLang: "zh-CN",
+        },
+      },
+    },
+  },
+  agents: {
+    list: [
+      {
+        id: "main",
+        default: true,
+        tools: {
+          // Keep minimal surface, only fortune tool.
+          allow: ["fate_reading"],
+        },
+      },
+    ],
+  },
+}

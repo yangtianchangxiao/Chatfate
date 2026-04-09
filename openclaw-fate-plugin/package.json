@@ -1,0 +1,11 @@
+{
+  "name": "openclaw-fate-plugin",
+  "version": "0.1.2",
+  "description": "OpenClaw plugin that exposes the ChatFate fortune tool.",
+  "type": "module",
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

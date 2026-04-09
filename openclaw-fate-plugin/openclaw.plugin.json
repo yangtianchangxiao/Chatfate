@@ -1,0 +1,93 @@
+{
+  "id": "fateclawd",
+  "name": "Fate for OpenClaw",
+  "description": "ChatFate fortune tool for OpenClaw agents.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Base URL of ChatFate backend, e.g. https://chatfate.life"
+      },
+      "endpointPath": {
+        "type": "string",
+        "default": "/api/fateclawd/invoke",
+        "description": "HTTP path for non-streaming invocation endpoint"
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "Optional bearer token for Fate API"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "minimum": 1000,
+        "maximum": 300000,
+        "description": "Request timeout in milliseconds"
+      },
+      "traceEnabledDefault": {
+        "type": "boolean",
+        "description": "Default value for trace_enabled when caller does not pass one"
+      },
+      "includeStepsDefault": {
+        "type": "boolean",
+        "description": "Default value for include_steps when caller does not pass one"
+      },
+      "defaultLang": {
+        "type": "string",
+        "description": "Default language passed to Fate API"
+      },
+      "paymentMode": {
+        "type": "string",
+        "enum": [
+          "off",
+          "preview",
+          "enforced"
+        ],
+        "description": "Payment interface mode. Current plugin only exposes status/upgrade hints (no charge execution)."
+      },
+      "upgradeUrl": {
+        "type": "string",
+        "description": "Optional upgrade/checkout landing URL shown when payment is required."
+      }
+    },
+    "required": [
+      "baseUrl"
+    ]
+  },
+  "uiHints": {
+    "baseUrl": {
+      "label": "Fate API Base URL",
+      "placeholder": "https://chatfate.life"
+    },
+    "endpointPath": {
+      "label": "Invoke Path",
+      "placeholder": "/api/fateclawd/invoke"
+    },
+    "apiKey": {
+      "label": "Fate API Key",
+      "sensitive": true
+    },
+    "timeoutMs": {
+      "label": "Timeout (ms)"
+    },
+    "traceEnabledDefault": {
+      "label": "Trace Enabled (Default)"
+    },
+    "includeStepsDefault": {
+      "label": "Include Steps (Default)"
+    },
+    "defaultLang": {
+      "label": "Default Language",
+      "placeholder": "zh-CN"
+    },
+    "paymentMode": {
+      "label": "Payment Mode"
+    },
+    "upgradeUrl": {
+      "label": "Upgrade URL",
+      "placeholder": "https://chatfate.life/pricing"
+    }
+  }
+}

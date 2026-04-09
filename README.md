@@ -178,6 +178,10 @@ Minimal payload:
 }
 ```
 
+## Other bundles
+
+This repo also includes an OpenClaw plugin source bundle under `openclaw-fate-plugin/` for hosts that prefer plugin-style integration over `SKILL.md`.
+
 ## Positioning
 
 This is not a pure prompt-only astrology skill.
