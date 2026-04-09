@@ -21,6 +21,15 @@ You need:
 
 If any required field is missing, ask one concise follow-up that collects all missing fields at once. Do not guess birth time.
 
+Preferred follow-up style:
+
+- Chinese:
+  - `请直接告诉我：出生年月日、出生时辰（如子时/午时）、性别，以及你现在最想问的一个问题。`
+- English:
+  - `Please give me your birth date, birth hour, gender, and the one question you want to ask first.`
+
+If the user has already provided some of the fields, only ask for the missing ones, but still keep it to one compact message.
+
 ## Workflow
 
 1. Reuse birth info already present in the conversation when available.
