@@ -37,9 +37,11 @@ python3 scripts/chatfate_query.py \
 3. The helper now auto-manages local session continuity:
 
 - it stores a local state file under `~/.chatfate/sessions.json`
+- it generates one stable local `client_id` for this installation
 - it creates a remote ChatFate session when needed
 - it saves both user and assistant turns through `/api/chat/save`
-- it forwards `session_id / anonymous_id` to `/api/fateclawd/invoke`
+- it forwards `session_id / client_id / anonymous_id` to `/api/fateclawd/invoke`
+- for anonymous usage it defaults `anonymous_id = client_id`
 
 4. If the user wants a fresh thread for the same birth profile, add:
 
@@ -88,6 +90,8 @@ The helper script reads these optional environment variables:
   - optional session continuity id
 - `CHATFATE_USER_ID`
   - optional login user id
+- `CHATFATE_CLIENT_ID`
+  - optional stable local installation id; auto-generated when omitted
 - `CHATFATE_ANONYMOUS_ID`
   - optional anonymous id
 - `CHATFATE_STATE_DIR`
@@ -104,4 +108,4 @@ The helper script reads these optional environment variables:
 
 ## Privacy boundary
 
-This skill sends only the user's birth info, question, and optional session identifiers to the ChatFate API. The local state file stores profile-to-session mapping only; it is not a local fate database.
+This skill sends only the user's birth info, question, and optional session identifiers to the ChatFate API. The local state file stores the stable `client_id` plus profile-to-session mapping only; it is not a local fate database.

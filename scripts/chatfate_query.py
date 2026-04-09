@@ -112,6 +112,17 @@ def normalize_base_url(raw: str) -> str:
     return str(raw or "").rstrip("/")
 
 
+def ensure_client_id(state: Dict[str, Any]) -> str:
+    client_id = str(state.get("client_id") or "").strip()
+    if client_id:
+        return client_id
+    client_id = uuid4().hex
+    state["client_id"] = client_id
+    if not state.get("client_created_at"):
+        state["client_created_at"] = utc_now_iso()
+    return client_id
+
+
 def make_profile_key(
     base_url: str,
     birth_date: str,
@@ -177,12 +188,14 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
     explicit_session_id = (args.session_id or os.getenv("CHATFATE_SESSION_ID") or "").strip()
     explicit_user_id = (args.user_id or os.getenv("CHATFATE_USER_ID") or "").strip()
     explicit_anonymous_id = (args.anonymous_id or os.getenv("CHATFATE_ANONYMOUS_ID") or "").strip()
+    explicit_client_id = (args.client_id or os.getenv("CHATFATE_CLIENT_ID") or "").strip()
 
     if args.no_memory:
         return {
             "session_id": explicit_session_id or None,
             "user_id": explicit_user_id or None,
-            "anonymous_id": explicit_anonymous_id or None,
+            "client_id": explicit_client_id or None,
+            "anonymous_id": explicit_anonymous_id or explicit_client_id or None,
             "profile": args.profile,
             "state_file": None,
             "memory_enabled": False,
@@ -190,11 +203,16 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
 
     state_path = state_file_path()
     state = load_state(state_path)
+    client_id = explicit_client_id or ensure_client_id(state)
     profile = (args.profile or os.getenv("CHATFATE_PROFILE") or "default").strip() or "default"
     profile_key = make_profile_key(base_url, args.birth_date, birth_time_index, args.gender, profile)
     entry = dict(state.get("profiles", {}).get(profile_key) or {})
 
-    anonymous_id = explicit_anonymous_id or str(entry.get("anonymous_id") or "").strip() or uuid4().hex
+    anonymous_id = (
+        explicit_anonymous_id
+        or str(entry.get("anonymous_id") or "").strip()
+        or client_id
+    )
     user_id = explicit_user_id or str(entry.get("user_id") or "").strip() or None
     session_id = explicit_session_id or None
     if not session_id and not args.new_session:
@@ -206,6 +224,7 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
             "birth_time_index": birth_time_index,
             "gender": args.gender,
         }
+        create_payload["client_id"] = client_id
         if user_id:
             create_payload["user_id"] = user_id
         else:
@@ -219,6 +238,7 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
             "birth_date": args.birth_date,
             "birth_time_index": birth_time_index,
             "gender": args.gender,
+            "client_id": client_id,
             "user_id": user_id,
             "anonymous_id": anonymous_id,
             "session_id": session_id,
@@ -229,6 +249,7 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
     save_state(state_path, state)
     return {
         "session_id": session_id,
+        "client_id": client_id,
         "user_id": user_id,
         "anonymous_id": anonymous_id,
         "profile": profile,
@@ -249,6 +270,8 @@ def build_invoke_payload(args: argparse.Namespace, birth_time_index: int, sessio
     }
     if session_meta.get("session_id"):
         payload["session_id"] = session_meta["session_id"]
+    if session_meta.get("client_id"):
+        payload["client_id"] = session_meta["client_id"]
     if session_meta.get("user_id"):
         payload["user_id"] = session_meta["user_id"]
     if session_meta.get("anonymous_id"):
@@ -271,6 +294,8 @@ def build_save_payload(
         "role": role,
         "content": content,
     }
+    if session_meta.get("client_id"):
+        payload["client_id"] = session_meta["client_id"]
     if session_meta.get("user_id"):
         payload["user_id"] = session_meta["user_id"]
     if session_meta.get("anonymous_id"):
@@ -320,6 +345,7 @@ def main() -> int:
     parser.add_argument("--api-key", default=os.getenv("CHATFATE_API_KEY"), help="Optional ChatFate API key.")
     parser.add_argument("--session-id", help="Optional explicit session id.")
     parser.add_argument("--user-id", help="Optional user id.")
+    parser.add_argument("--client-id", help="Optional stable local client id.")
     parser.add_argument("--anonymous-id", help="Optional anonymous id.")
     parser.add_argument("--profile", default=os.getenv("CHATFATE_PROFILE", "default"), help="Local profile name for isolating multiple threads with the same birth info.")
     parser.add_argument("--new-session", action="store_true", help="Force a new remote session for this local profile.")
@@ -390,6 +416,7 @@ def main() -> int:
         data["_chatfate_local"] = {
             "profile": session_meta.get("profile"),
             "session_id": session_meta.get("session_id"),
+            "client_id": session_meta.get("client_id"),
             "anonymous_id": session_meta.get("anonymous_id"),
             "user_id": session_meta.get("user_id"),
             "memory_enabled": session_meta.get("memory_enabled"),

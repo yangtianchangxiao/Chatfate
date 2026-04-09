@@ -91,11 +91,19 @@ export CHATFATE_API_KEY="cf_sk_xxx"
 export CHATFATE_LANG="zh-CN"
 export CHATFATE_TIMEOUT_SEC="360"
 export CHATFATE_PROFILE="default"
+export CHATFATE_CLIENT_ID="optional-stable-client-id"
 export CHATFATE_STATE_DIR="$HOME/.chatfate"
 ```
 
 `CHATFATE_API_KEY` is optional while public anonymous access remains enabled.
 If the deployment later requires API keys, the same skill still works.
+
+Identity notes:
+
+- `client_id`: stable local installation identity; the helper auto-generates and persists it
+- `session_id`: one remote conversation thread
+- `profile`: local alias for separating multiple threads under the same birth chart
+- `user_id`: future real account identity when a host has login
 
 ## Example prompts
 
@@ -141,14 +149,16 @@ There are two different kinds of memory:
 The local agent itself remembers prior turns in the same conversation.
 
 2. server-side session memory
-ChatFate uses `session_id`, `user_id`, and `anonymous_id` to keep remote continuity.
+ChatFate uses `session_id`, `client_id`, `user_id`, and `anonymous_id` to keep remote continuity.
 
 The helper now does the following automatically:
 
 - persists a local state file at `~/.chatfate/sessions.json`
+- generates one stable local `client_id` for this Claude/Codex installation
 - reuses the same remote session for the same `birth_date + birth_time_index + gender + profile`
 - creates a new remote session when needed
 - saves both user and assistant messages through `/api/chat/save`
+- defaults `anonymous_id = client_id` for backward-compatible anonymous memory
 
 You can force a clean thread with:
 

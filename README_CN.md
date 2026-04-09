@@ -95,9 +95,11 @@ cat ~/.codex/skills/chatfate/SKILL.md
 `Chatfate/scripts/chatfate_query.py` 不只是发一次请求，它还会自动处理连续对话：
 
 - 本地保存 `~/.chatfate/sessions.json`
+- 为当前这台 Codex / Claude 安装生成稳定的 `client_id`
 - 自动创建远程 session
 - 自动保存 user / assistant 消息
 - 自动复用同一 profile 下的远程 session
+- 匿名模式下默认把 `anonymous_id = client_id`，兼容旧服务端记忆逻辑
 - 支持 `--profile`
 - 支持 `--new-session`
 - 支持 `--no-memory`
@@ -158,6 +160,7 @@ export CHATFATE_API_KEY="cf_sk_xxx"
 export CHATFATE_LANG="zh-CN"
 export CHATFATE_TIMEOUT_SEC="360"
 export CHATFATE_PROFILE="default"
+export CHATFATE_CLIENT_ID="optional-stable-client-id"
 export CHATFATE_STATE_DIR="$HOME/.chatfate"
 ```
 
@@ -165,6 +168,10 @@ export CHATFATE_STATE_DIR="$HOME/.chatfate"
 
 - 当前匿名访问仍可用，所以 `CHATFATE_API_KEY` 不是必须
 - 以后如果切换成 key / credit 模式，这套 skill 不需要重做
+- `client_id` 表示“这一台本地安装的稳定身份”；不传时 helper 会自动生成并持久化
+- `session_id` 表示一条具体对话线程
+- `profile` 是本地线程别名，用来隔离同命盘下的多个主题对话
+- `user_id` 留给以后真实登录账户接入
 
 ## 定位
 
