@@ -34,7 +34,26 @@ python3 scripts/chatfate_query.py \
   --question "分析我的事业"
 ```
 
-3. If only `SKILL.md` is installed and the script is unavailable, fall back to raw HTTP:
+3. The helper now auto-manages local session continuity:
+
+- it stores a local state file under `~/.chatfate/sessions.json`
+- it creates a remote ChatFate session when needed
+- it saves both user and assistant turns through `/api/chat/save`
+- it forwards `session_id / anonymous_id` to `/api/fateclawd/invoke`
+
+4. If the user wants a fresh thread for the same birth profile, add:
+
+```bash
+python3 scripts/chatfate_query.py \
+  --birth-date 1990-06-15 \
+  --birth-time 子时 \
+  --gender male \
+  --profile annual-review \
+  --new-session \
+  --question "回溯一下前十年"
+```
+
+5. If only `SKILL.md` is installed and the script is unavailable, fall back to raw HTTP:
 
 ```bash
 curl -s https://chatfate.life/api/fateclawd/invoke \
@@ -47,9 +66,9 @@ curl -s https://chatfate.life/api/fateclawd/invoke \
   }'
 ```
 
-4. If the user explicitly wants process details, add `--steps`.
-5. If the user explicitly wants raw payload/debugging, add `--json`.
-6. Preserve the user's original question. Do not silently rewrite an open-ended consultation into a single-year question.
+6. If the user explicitly wants process details, add `--steps`.
+7. If the user explicitly wants raw payload/debugging, add `--json`.
+8. Preserve the user's original question. Do not silently rewrite an open-ended consultation into a single-year question.
 
 ## Environment
 
@@ -63,12 +82,16 @@ The helper script reads these optional environment variables:
   - default: `360`
 - `CHATFATE_LANG`
   - default: `zh-CN`
+- `CHATFATE_PROFILE`
+  - default: `default`
 - `CHATFATE_SESSION_ID`
   - optional session continuity id
 - `CHATFATE_USER_ID`
   - optional login user id
 - `CHATFATE_ANONYMOUS_ID`
   - optional anonymous id
+- `CHATFATE_STATE_DIR`
+  - default: `~/.chatfate`
 
 ## Good usage patterns
 
@@ -81,4 +104,4 @@ The helper script reads these optional environment variables:
 
 ## Privacy boundary
 
-This skill sends only the user's birth info, question, and optional session identifiers to the ChatFate API. It does not need local database access.
+This skill sends only the user's birth info, question, and optional session identifiers to the ChatFate API. The local state file stores profile-to-session mapping only; it is not a local fate database.

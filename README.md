@@ -13,36 +13,46 @@ This directory is designed so it can either:
 
 - the skill lives locally in Claude/Codex
 - the actual fate reading is produced by the ChatFate API
-- the backend can later enforce API keys, credits, usage tracking, and session memory
+- the backend can evolve without changing the user workflow
+- API keys, credits, usage tracking, and memory stay on the server side
 
 ## Install
 
-### Fast install: SKILL.md only
+### Recommended install: hosted skill + helper script
 
-This is the closest to the Cerul-style distribution model.  
-If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.
+Canonical hosted files:
+
+- `https://chatfate.life/skills/chatfate/SKILL.md`
+- `https://chatfate.life/skills/chatfate/scripts/chatfate_query.py`
+- `https://chatfate.life/developers`
 
 #### Claude Code
 
 ```bash
-mkdir -p ~/.claude/skills/chatfate && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/SKILL.md \
+mkdir -p ~/.claude/skills/chatfate/scripts && \
+curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
   -o ~/.claude/skills/chatfate/SKILL.md && \
+curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
+  -o ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
+chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.claude/skills/chatfate/SKILL.md
 ```
 
 #### Codex
 
 ```bash
-mkdir -p ~/.codex/skills/chatfate && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/SKILL.md \
+mkdir -p ~/.codex/skills/chatfate/scripts && \
+curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
   -o ~/.codex/skills/chatfate/SKILL.md && \
+curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
+  -o ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
+chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
-### Full install: skill + helper script
+### GitHub-backed install
 
-### Claude Code
+#### Claude Code
 
 ```bash
 mkdir -p ~/.claude/skills/chatfate/scripts && \
@@ -54,7 +64,7 @@ chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.claude/skills/chatfate/SKILL.md
 ```
 
-### Codex
+#### Codex
 
 ```bash
 mkdir -p ~/.codex/skills/chatfate/scripts && \
@@ -66,6 +76,10 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
+### Fast fallback: `SKILL.md` only
+
+If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.
+
 ## Optional environment variables
 
 ```bash
@@ -73,9 +87,11 @@ export CHATFATE_BASE_URL="https://chatfate.life"
 export CHATFATE_API_KEY="cf_sk_xxx"
 export CHATFATE_LANG="zh-CN"
 export CHATFATE_TIMEOUT_SEC="360"
+export CHATFATE_PROFILE="default"
+export CHATFATE_STATE_DIR="$HOME/.chatfate"
 ```
 
-`CHATFATE_API_KEY` is optional while public anonymous access remains enabled.  
+`CHATFATE_API_KEY` is optional while public anonymous access remains enabled.
 If the deployment later requires API keys, the same skill still works.
 
 ## Example prompts
@@ -118,13 +134,30 @@ Birth hour mapping:
 
 There are two different kinds of memory:
 
-1. agent thread memory  
+1. agent thread memory
 The local agent itself remembers prior turns in the same conversation.
 
-2. server-side session memory  
-ChatFate can use `session_id`, `user_id`, and `anonymous_id` if the caller provides them.
+2. server-side session memory
+ChatFate uses `session_id`, `user_id`, and `anonymous_id` to keep remote continuity.
 
-This release bundle already supports passing those fields through the helper script, but it does not yet auto-create and auto-persist a session file locally. That can be added in the next iteration.
+The helper now does the following automatically:
+
+- persists a local state file at `~/.chatfate/sessions.json`
+- reuses the same remote session for the same `birth_date + birth_time_index + gender + profile`
+- creates a new remote session when needed
+- saves both user and assistant messages through `/api/chat/save`
+
+You can force a clean thread with:
+
+```bash
+python3 scripts/chatfate_query.py \
+  --birth-date 1990-06-15 \
+  --birth-time 子时 \
+  --gender male \
+  --profile annual-review \
+  --new-session \
+  --question "回溯一下前十年"
+```
 
 ## API shape
 
