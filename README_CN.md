@@ -52,7 +52,13 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
-安装完成后，在 Codex 对话里直接提问即可。只要已经提供出生信息，Codex 就可以调用这个 skill。
+安装完成后，还需要设置你的 ChatFate API key；之后在 Codex 对话里直接提问即可。只要已经提供出生信息，Codex 就可以调用这个 skill。
+
+推荐再执行：
+
+```bash
+export CHATFATE_API_KEY="cf_sk_xxx"
+```
 
 常见问题示例：
 
@@ -177,7 +183,7 @@ POST https://chatfate.life/api/fateclawd/invoke
 
 ## 环境变量
 
-可选：
+必填 / 常用：
 
 ```bash
 export CHATFATE_BASE_URL="https://chatfate.life"
@@ -191,8 +197,9 @@ export CHATFATE_STATE_DIR="$HOME/.chatfate"
 
 说明：
 
-- 当前匿名访问仍可用，所以 `CHATFATE_API_KEY` 不是必须
-- 以后如果切换成 key / credit 模式，这套 skill 不需要重做
+- 当前对外的 Codex / Claude Code / plugin 调用，默认走 API key + credits
+- 每调用一次 `/api/fateclawd/invoke`，扣 1 credit
+- 网站前台聊天仍然可以继续走匿名网页流，不和外部 agent key 混在一起
 - `client_id` 表示“这一台本地安装的稳定身份”；不传时 helper 会自动生成并持久化
 - `session_id` 表示一条具体对话线程
 - `profile` 是本地线程别名，用来隔离同命盘下的多个主题对话

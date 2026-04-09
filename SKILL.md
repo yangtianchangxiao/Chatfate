@@ -43,6 +43,8 @@ python3 scripts/chatfate_query.py \
   --question "分析我的事业"
 ```
 
+Before using the helper on hosted ChatFate, make sure `CHATFATE_API_KEY` is set when the deployment requires credits.
+
 3. The helper now auto-manages local session continuity:
 
 - it stores a local state file under `~/.chatfate/sessions.json`
@@ -88,7 +90,7 @@ The helper script reads these optional environment variables:
 - `CHATFATE_BASE_URL`
   - default: `https://chatfate.life`
 - `CHATFATE_API_KEY`
-  - optional bearer token for deployments that require auth
+  - bearer token for hosted deployments that require API key + credits
 - `CHATFATE_TIMEOUT_SEC`
   - default: `360`
 - `CHATFATE_LANG`
@@ -114,6 +116,12 @@ The helper script reads these optional environment variables:
 - `分析我的事业`
 - `看看我的家庭和房产`
 - `我最近为什么总觉得很累`
+
+## Credit model
+
+- hosted agent usage goes through `/api/fateclawd/invoke`
+- one invoke request consumes one credit
+- browser chat on the website may use a different route and does not need to share the same key flow
 
 ## Privacy boundary
 

@@ -79,11 +79,17 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
+After install, set your ChatFate API key:
+
+```bash
+export CHATFATE_API_KEY="cf_sk_xxx"
+```
+
 ### Fast fallback: `SKILL.md` only
 
 If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.
 
-## Optional environment variables
+## Environment variables
 
 ```bash
 export CHATFATE_BASE_URL="https://chatfate.life"
@@ -95,8 +101,10 @@ export CHATFATE_CLIENT_ID="optional-stable-client-id"
 export CHATFATE_STATE_DIR="$HOME/.chatfate"
 ```
 
-`CHATFATE_API_KEY` is optional while public anonymous access remains enabled.
-If the deployment later requires API keys, the same skill still works.
+For Codex / Claude Code / plugin usage, `CHATFATE_API_KEY` should be treated as required.
+
+- each `/api/fateclawd/invoke` call consumes 1 credit
+- website chat can still remain on the anonymous browser route
 
 Identity notes:
 
