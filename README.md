@@ -95,6 +95,8 @@ Alternative:
 export CHATFATE_API_KEY="cf_sk_xxx"
 ```
 
+If a user explicitly pastes a key into the conversation, the agent can use it for the current call only; persistent local setup is still the better default.
+
 ### Fast fallback: `SKILL.md` only
 
 If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.

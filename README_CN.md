@@ -68,6 +68,8 @@ chmod 600 ~/.chatfate/api_key
 export CHATFATE_API_KEY="cf_sk_xxx"
 ```
 
+如果用户是在对话里临时把 key 发给 agent，也可以只用于当前这次调用；但更推荐一次性写入 `~/.chatfate/api_key`，后续就不用重复发。
+
 常见问题示例：
 
 - `分析我的事业`

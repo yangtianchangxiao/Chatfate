@@ -51,6 +51,12 @@ Supported key sources, in order:
 2. `CHATFATE_API_KEY`
 3. local file `~/.chatfate/api_key`
 
+If the user explicitly pastes a ChatFate API key in the conversation, you may use it for the current task by passing `--api-key`.
+
+- do not echo the key back in your reply
+- do not save it to disk unless the user explicitly asks for persistent local setup
+- if the user asks for one-time setup, prefer saving it to `~/.chatfate/api_key`
+
 One-time local setup:
 
 ```bash
