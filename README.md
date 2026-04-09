@@ -1,5 +1,8 @@
 # ChatFate
 
+English: `README.md`  
+中文说明：`README_CN.md`
+
 Public release bundle for installing ChatFate as a Claude Code / Codex skill.
 
 This directory is designed so it can either:
