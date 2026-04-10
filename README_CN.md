@@ -1,7 +1,7 @@
 # ChatFate
 
 中文说明：`README_CN.md`  
-English: `README.md`
+English: `README_EN.md`
 
 `ChatFate` 是一个把紫微斗数咨询能力暴露为远程 skill / plugin 的公共分发仓库。
 

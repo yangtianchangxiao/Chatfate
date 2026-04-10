@@ -1,35 +1,71 @@
-# ChatFate
+<div align="center">
 
-English: `README.md`  
-中文说明：`README_CN.md`
+# 算了吧.skill
 
-Public release bundle for installing ChatFate as a Claude Code / Codex skill.
+> *“先验证过去，再问未来。”*
 
-This directory is designed so it can either:
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-d97706)](https://claude.ai/code)
+[![Codex](https://img.shields.io/badge/Codex-Skill-2563eb)](https://openai.com)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-Plugin-059669)](./openclaw-fate-plugin)
+[![Remote API](https://img.shields.io/badge/Remote%20API-ChatFate-b45309)](https://chatfate.life/developers)
+[![Credits](https://img.shields.io/badge/Billing-1%20credit%20per%20invoke-7c3aed)](https://chatfate.life/developers)
 
-1. live inside a monorepo during iteration, or
-2. be published as its own public GitHub repository.
+<br>
 
-## What it is
+不是把一堆命理话术塞进 prompt。<br>
+而是给 Agent 一套真正能调用的命理后端。<br>
 
-`ChatFate` exposes fate reading as a remote skill:
+**网站能用，Codex 能用，Claude Code 能用，OpenClaw 也能用。**
 
-- the skill lives locally in Claude/Codex
-- the actual fate reading is produced by the ChatFate API
-- the backend can evolve without changing the user workflow
-- API keys, credits, usage tracking, and memory stay on the server side
+<br>
 
-## Install
+`算了吧.skill` 是这个 skill 的中文名。<br>
+仓库名和服务名仍然是 **ChatFate**，内部安装 slug 仍然是 `chatfate`。<br>
+这样可以保持现有安装路径、API、更新方式全部稳定。<br>
 
-### Recommended install: hosted skill + helper script
+[安装](#安装) · [怎么用](#怎么用) · [效果示例](#效果示例) · [API--Credit](#api--credit) · [项目结构](#项目结构) · [English](README_EN.md) · [详细中文说明](README_CN.md)
 
-Canonical hosted files:
+</div>
 
-- `https://chatfate.life/skills/chatfate/SKILL.md`
-- `https://chatfate.life/skills/chatfate/scripts/chatfate_query.py`
-- `https://chatfate.life/developers`
+---
 
-#### Claude Code
+## 这是什么
+
+`算了吧.skill` 不是一个本地写死的算命 prompt。
+
+它的结构是：
+
+- 本地只装一个很轻的 skill / helper
+- 真正的命盘计算、咨询编排、记忆、credit、日志都在远程 ChatFate 服务端
+- 网站前台和外部 Agent 打的是同一个后端
+- 以后要改 planner、expert skill、search tree、计费，都不需要用户改使用方式
+
+这件事的重点不是“让 AI 背一些宫位解释”。
+而是把命理能力做成一个 **agent-ready runtime**。
+
+---
+
+## 安装
+
+### Claude Code
+
+> 推荐直接把整个仓库 clone 成一个 skill 目录。这样 `SKILL.md`、helper 脚本、README、OpenClaw plugin 会一起带下来，后续更新也简单。
+
+```bash
+mkdir -p ~/.claude/skills && \
+git clone https://github.com/yangtianchangxiao/Chatfate ~/.claude/skills/chatfate
+```
+
+### Codex
+
+```bash
+mkdir -p ~/.codex/skills && \
+git clone https://github.com/yangtianchangxiao/Chatfate ~/.codex/skills/chatfate
+```
+
+### 如果你更喜欢直接拉 hosted 版本
+
+Claude Code：
 
 ```bash
 mkdir -p ~/.claude/skills/chatfate/scripts && \
@@ -37,11 +73,10 @@ curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
   -o ~/.claude/skills/chatfate/SKILL.md && \
 curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
   -o ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.claude/skills/chatfate/SKILL.md
+chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py
 ```
 
-#### Codex
+Codex：
 
 ```bash
 mkdir -p ~/.codex/skills/chatfate/scripts && \
@@ -49,39 +84,14 @@ curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
   -o ~/.codex/skills/chatfate/SKILL.md && \
 curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
   -o ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.codex/skills/chatfate/SKILL.md
+chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py
 ```
 
-### GitHub-backed install
+### 配置 API key
 
-#### Claude Code
+现在外部 Agent 调用默认走 `API key + credits`。
 
-```bash
-mkdir -p ~/.claude/skills/chatfate/scripts && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/SKILL.md \
-  -o ~/.claude/skills/chatfate/SKILL.md && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/scripts/chatfate_query.py \
-  -o ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.claude/skills/chatfate/SKILL.md
-```
-
-#### Codex
-
-```bash
-mkdir -p ~/.codex/skills/chatfate/scripts && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/SKILL.md \
-  -o ~/.codex/skills/chatfate/SKILL.md && \
-curl -fsSL https://raw.githubusercontent.com/yangtianchangxiao/Chatfate/main/scripts/chatfate_query.py \
-  -o ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.codex/skills/chatfate/SKILL.md
-```
-
-After install, make your ChatFate API key available locally.
-
-Recommended one-time setup:
+推荐的一次性配置：
 
 ```bash
 mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
@@ -89,117 +99,174 @@ printf '%s' 'cf_sk_xxx' > ~/.chatfate/api_key && \
 chmod 600 ~/.chatfate/api_key
 ```
 
-Alternative:
+也支持：
 
 ```bash
 export CHATFATE_API_KEY="cf_sk_xxx"
 ```
 
-If a user explicitly pastes a key into the conversation, the agent can use it for the current call only; persistent local setup is still the better default.
+helper 读取顺序：
 
-### Fast fallback: `SKILL.md` only
+1. `--api-key`
+2. `CHATFATE_API_KEY`
+3. `~/.chatfate/api_key`
 
-If only `SKILL.md` is installed, the skill falls back to raw HTTP calls.
+### 更新
 
-## Environment variables
+如果你是 clone 安装：
 
 ```bash
-export CHATFATE_BASE_URL="https://chatfate.life"
-export CHATFATE_API_KEY="cf_sk_xxx"
-export CHATFATE_API_KEY_FILE="$HOME/.chatfate/api_key"
-export CHATFATE_LANG="zh-CN"
-export CHATFATE_TIMEOUT_SEC="360"
-export CHATFATE_PROFILE="default"
-export CHATFATE_CLIENT_ID="optional-stable-client-id"
-export CHATFATE_STATE_DIR="$HOME/.chatfate"
+git -C ~/.claude/skills/chatfate pull
+# 或
+
+git -C ~/.codex/skills/chatfate pull
 ```
 
-For Codex / Claude Code / plugin usage, `CHATFATE_API_KEY` should be treated as required.
+---
 
-- each `/api/fateclawd/invoke` call consumes 1 credit
-- website chat can still remain on the anonymous browser route
-- helper lookup order is: `--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key`
+## 怎么用
 
-Identity notes:
+安装完以后，不需要再自己拼 API 请求。直接在对话里问。
 
-- `client_id`: stable local installation identity; the helper auto-generates and persists it
-- `session_id`: one remote conversation thread
-- `profile`: local alias for separating multiple threads under the same birth chart
-- `user_id`: future real account identity when a host has login
+### 第一轮最好这样说
 
-## Example prompts
+- `我是 1990-06-15 子时 男，分析我的事业。`
+- `我是 1990-06-15 子时 男，回溯一下前十年。`
+- `我是 1990-06-15 子时 男，我哪一年财运最好？`
+- `我是 1990-06-15 子时 男，只看未来十年的家庭和房产。`
 
-- `分析我的事业`
-- `回溯一下前十年`
-- `我哪一年财运最好`
-- `看看我的感情`
-- `分析未来十年的家庭与房产走势`
+### 后续就自然追问
 
-## How end users should use it
+- `那 2028 年为什么是低点？`
+- `感情这条线再展开一点。`
+- `如果我要换城市，应该看哪几年？`
+- `重新开一轮，只看父母和家庭关系。`
 
-Do not overload end users with helper flags unless they explicitly want advanced control.
+### 你真正该教用户的，不是命令，而是这三件事
 
-Recommended guidance:
+1. 先给出生信息
+2. 一次问一个真实问题
+3. 然后连续追问
 
-1. first turn: provide birth info and one real question
-2. follow-up turns: ask naturally without repeating the whole template
-3. same chart, new topic: open a separate thread
-4. clean restart: explicitly ask for a fresh consultation
+---
 
-Good first-turn examples:
+## 效果示例
 
-- `I was born on 1990-06-15 at 子时, male. First analyze my career structure.`
-- `Review the most important changes in my last ten years.`
-- `Look only at my family and housing trend for the next decade.`
+> 场景一：不是只回答单一年份，而是先看长周期
 
-## Required inputs
+```text
+用户            ❯ 分析我的事业
 
-The skill needs:
+算了吧.skill    ❯ 我先不把这个问题压缩成某一年的流年，而是先看你的长期事业结构，
+                  再接当前十年阶段，最后再落到关键窗口。
 
-- `birth_date` in `YYYY-MM-DD`
-- `birth_time` as one of:
-  - numeric index `0-12`
-  - `子时 / 丑时 / ... / 亥时`
-  - short label `子 / 丑 / ... / 亥`
-- `gender` as `male` or `female`
-- the question itself
+                  你的事业主轴不是“平稳升职型”，而是典型的开拓型结构。
+                  早期波动大，但中段开始更适合把名声、资源、判断力转成实际控制力。
+```
 
-Birth hour mapping:
+> 场景二：比较题会走比较，不会偷换成“讲 2026”
 
-- `0=子时`
-- `1=丑时`
-- `2=寅时`
-- `3=卯时`
-- `4=辰时`
-- `5=巳时`
-- `6=午时`
-- `7=未时`
-- `8=申时`
-- `9=酉时`
-- `10=戌时`
-- `11=亥时`
-- `12=早子时`
+```text
+用户            ❯ 我哪一年财运最好？
 
-## Memory and continuity
+算了吧.skill    ❯ 这个问题要做年份比较，不应该只讲当前年份。
+                  我会先比较当前大限里的各个关键年份，再看财帛、田宅、官禄和三方四正的联动。
 
-There are two different kinds of memory:
+                  如果只看这十年里的财富爆发窗口，最强点不是平均分布，
+                  而是会集中在一到两个明显高点年份。
+```
 
-1. agent thread memory
-The local agent itself remembers prior turns in the same conversation.
+> 场景三：回溯题会按十年主轴来复盘，不会只抓一个年份敷衍
 
-2. server-side session memory
-ChatFate uses `session_id`, `client_id`, `user_id`, and `anonymous_id` to keep remote continuity.
+```text
+用户            ❯ 回溯一下前十年
 
-The helper now does the following automatically:
+算了吧.skill    ❯ 这个问题不是要我找一个“关键年”就结束，
+                  而是要把过去十年的主轴、节奏变化、关系重心、事业波动一起复盘。
+                  我会先看这十年的落宫和主轴，再抽出真正的高点、低点和转折点。
+```
 
-- persists a local state file at `~/.chatfate/sessions.json`
-- generates one stable local `client_id` for this Claude/Codex installation
-- reuses the same remote session for the same `birth_date + birth_time_index + gender + profile`
-- creates a new remote session when needed
-- saves both user and assistant messages through `/api/chat/save`
-- defaults `anonymous_id = client_id` for backward-compatible anonymous memory
+---
 
-You can force a clean thread with:
+## 它和普通算命 prompt 的区别
+
+很多“AI 算命”产品，本质是：
+
+- 用户发问题
+- prompt 套模板
+- 固定按几个宫位讲几段话
+- 看起来像懂了，其实没有真的做决策
+
+`算了吧.skill` 这条路不一样：
+
+- 有远程运行时，不是纯 prompt
+- 有会话记忆，不是每轮重来
+- 有 API key / credits / usage，不是散装 demo
+- 有网站版、skill 版、plugin 版，不是只能在一个壳里跑
+- 后端可以继续演进 planner / evaluator / trace，而用户侧安装方式不需要变
+
+也就是说，用户装的是一个 skill，真正进化的是后端能力。
+
+---
+
+## API / Credit
+
+当前统一入口：
+
+```text
+POST https://chatfate.life/api/fateclawd/invoke
+```
+
+Header：
+
+```text
+X-ChatFate-Key: cf_sk_xxx
+```
+
+最小 payload：
+
+```json
+{
+  "birth_date": "1990-06-15",
+  "birth_time_index": 0,
+  "gender": "male",
+  "question": "分析我的事业"
+}
+```
+
+规则：
+
+- 外部 Agent 调用走 `/api/fateclawd/invoke`
+- `1 次 invoke = 1 credit`
+- 网站前台聊天可以继续走匿名网页流，不和 agent key 混在一起
+- 服务端会统一处理记忆、日志、额度和未来计费
+
+公开入口：
+
+- 产品首页：`https://chatfate.life/`
+- developers：`https://chatfate.life/developers`
+- hosted skill：`https://chatfate.life/skills/chatfate/SKILL.md`
+- hosted helper：`https://chatfate.life/skills/chatfate/scripts/chatfate_query.py`
+
+---
+
+## 记忆与连续对话
+
+这里有两层记忆：
+
+1. Agent 本地线程上下文
+2. ChatFate 服务端 session memory
+
+helper 会自动做这些事：
+
+- 本地保存 `~/.chatfate/sessions.json`
+- 为这台安装生成稳定的 `client_id`
+- 同一命盘 + 同一 profile 自动复用 session
+- 需要时自动创建新 session
+- 自动保存 user / assistant 消息
+- 匿名模式下默认 `anonymous_id = client_id`
+
+如果你想强制开新线程，可以这样：
 
 ```bash
 python3 scripts/chatfate_query.py \
@@ -211,53 +278,54 @@ python3 scripts/chatfate_query.py \
   --question "回溯一下前十年"
 ```
 
-Advanced users can also isolate topics explicitly:
+---
 
-```bash
-python3 scripts/chatfate_query.py \
-  --birth-date 1990-06-15 \
-  --birth-time 子时 \
-  --gender male \
-  --question "Analyze my career structure"
-
-python3 scripts/chatfate_query.py \
-  --birth-date 1990-06-15 \
-  --birth-time 子时 \
-  --gender male \
-  --profile love \
-  --new-session \
-  --question "Look only at my long-term relationship trend"
-```
-
-## API shape
-
-Current request target:
+## 项目结构
 
 ```text
-POST https://chatfate.life/api/fateclawd/invoke
+chatfate/
+├── SKILL.md
+├── scripts/
+│   └── chatfate_query.py
+├── openclaw-fate-plugin/
+│   ├── README.md
+│   ├── QUICKSTART_CN.md
+│   ├── index.ts
+│   ├── openclaw.plugin.json
+│   └── package.json
+├── README.md
+├── README_CN.md
+└── README_EN.md
 ```
 
-Minimal payload:
+---
 
-```json
-{
-  "birth_date": "1990-06-15",
-  "birth_time_index": 0,
-  "gender": "male",
-  "question": "分析我的事业"
-}
-```
+## 适合谁
 
-## Other bundles
+- 想给 Claude Code / Codex 一个真正可调用的命理能力的人
+- 想让 OpenClaw 也能直接接入的人
+- 想把网站版和 Agent 版统一到同一后端的人
+- 想做 API / credit / usage / memory，而不是一次性 demo 的人
 
-This repo also includes an OpenClaw plugin source bundle under `openclaw-fate-plugin/` for hosts that prefer plugin-style integration over `SKILL.md`.
+---
 
-## Positioning
+## 注意事项
 
-This is not a pure prompt-only astrology skill.
+- 请不要猜出生时辰；时辰不准，后面都容易偏
+- 第一轮最好直接把出生信息和问题一起给全
+- 如果你只是想给终端用户用，不要把 helper flags 教给他们
+- 如果你是开发者，再去用 `profile / new-session / api-key` 这些高级控制
 
-It is a remote-skill wrapper around the ChatFate service, which means:
+---
 
-- the installation is lightweight
-- the logic can evolve on the server
-- API key / credit / usage governance can be added without changing the user workflow
+### 写在最后
+
+很多人做“AI 命理”，做着做着就退回到模板。
+
+因为模板最省事，最像“已经完成”，也最容易假装自己有 Agent。
+
+但如果真想让命理能力进入 Agent 世界，重点不是把文案写得更玄，
+而是把这件事做成一个稳定、可调用、可计费、可演进的运行时。
+
+`算了吧.skill` 只是这个入口名。
+真正跑在后面的，是 ChatFate。
