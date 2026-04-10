@@ -5,6 +5,14 @@ English: `README.md`
 
 `ChatFate` 是一个把紫微斗数咨询能力暴露为远程 skill / plugin 的公共分发仓库。
 
+这个 skill 的对外中文名，统一叫作：`算了吧`。
+
+说明：
+
+- 中文显示名：`算了吧`
+- 内部 slug / 安装目录：`chatfate`
+- 后端服务品牌：`ChatFate`
+
 它不是把命理逻辑塞进本地 prompt，而是：
 
 - 本地 agent 装一个轻量 skill 或 plugin
@@ -53,6 +61,8 @@ cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
 安装完成后，还需要让本地能读到你的 ChatFate API key；之后在 Codex 对话里直接提问即可。只要已经提供出生信息，Codex 就可以调用这个 skill。
+
+如果宿主会显示 skill 名，中文名就显示为 `算了吧`；但磁盘目录和安装路径仍保持 `chatfate`，这样不会影响现有安装与更新。
 
 推荐的一次性配置方式：
 

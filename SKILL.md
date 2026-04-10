@@ -1,9 +1,11 @@
 ---
 name: chatfate
-description: Use when the user wants a Ziwei / fate reading through the ChatFate service. Supports past verification, best-year comparison, decade review, and open-ended consultation around career, wealth, love, family, housing, parents, travel, inner state, or overall fortune.
+description: "算了吧" is the Chinese-facing skill name for ChatFate. Use when the user wants a Ziwei / fate reading through the ChatFate service. Supports past verification, best-year comparison, decade review, and open-ended consultation around career, wealth, love, family, housing, parents, travel, inner state, or overall fortune.
 ---
 
-# ChatFate
+# 算了吧
+
+`算了吧` is the Chinese-facing skill name for ChatFate.
 
 Use this skill when the user wants a real ChatFate reading through the remote service rather than a handcrafted local answer.
 
