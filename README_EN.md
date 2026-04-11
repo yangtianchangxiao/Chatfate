@@ -10,6 +10,12 @@ This directory is designed so it can either:
 1. live inside a monorepo during iteration, or
 2. be published as its own public GitHub repository.
 
+## Try it first
+
+If you want the fastest way to try the experience before installing any skill, go directly to:
+
+- `https://chatfate.life/`
+
 ## What it is
 
 `ChatFate` exposes interactive fate consultation as a remote skill, built on the classical Chinese Sanhe-school Ziwei Doushu system, a traditional Chinese astrology framework:
