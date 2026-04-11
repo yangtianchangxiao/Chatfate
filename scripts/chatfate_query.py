@@ -91,6 +91,10 @@ def api_key_file_path() -> Path:
     return state_root_dir() / "api_key"
 
 
+def account_file_path() -> Path:
+    return state_root_dir() / "account.json"
+
+
 def load_api_key_from_file(path: Path) -> Optional[str]:
     try:
         if not path.exists():
@@ -99,6 +103,23 @@ def load_api_key_from_file(path: Path) -> Optional[str]:
         return value or None
     except Exception:
         return None
+
+
+def load_account_state(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_account_state(path: Path, state: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(".tmp")
+    tmp_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp_path.replace(path)
 
 
 def resolve_api_key(args: argparse.Namespace) -> Optional[str]:
@@ -177,11 +198,11 @@ def request_json(
     url: str,
     payload: Dict[str, Any],
     timeout_sec: int,
-    api_key: Optional[str],
+    auth_token: Optional[str],
 ) -> Dict[str, Any]:
     headers = {"Content-Type": "application/json"}
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
+    if auth_token:
+        headers["Authorization"] = f"Bearer {auth_token}"
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
@@ -196,9 +217,9 @@ def create_remote_session(
     base_url: str,
     payload: Dict[str, Any],
     timeout_sec: int,
-    api_key: Optional[str],
+    auth_token: Optional[str],
 ) -> str:
-    data = request_json(f"{base_url}/api/chat/session/create", payload, timeout_sec, api_key)
+    data = request_json(f"{base_url}/api/chat/session/create", payload, timeout_sec, auth_token)
     session_id = str(data.get("session_id") or "").strip()
     if not data.get("success") or not session_id:
         raise RuntimeError(f"Failed to create remote session: {json.dumps(data, ensure_ascii=False)}")
@@ -209,26 +230,101 @@ def save_remote_message(
     base_url: str,
     payload: Dict[str, Any],
     timeout_sec: int,
-    api_key: Optional[str],
+    auth_token: Optional[str],
 ) -> Dict[str, Any]:
-    data = request_json(f"{base_url}/api/chat/save", payload, timeout_sec, api_key)
+    data = request_json(f"{base_url}/api/chat/save", payload, timeout_sec, auth_token)
     if not data.get("success"):
         raise RuntimeError(f"Failed to save chat message: {json.dumps(data, ensure_ascii=False)}")
     return data
 
 
-def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: str, api_key: Optional[str]) -> Dict[str, Any]:
+def bootstrap_account(
+    base_url: str,
+    client_id: str,
+    timeout_sec: int,
+    lang: str,
+) -> Dict[str, Any]:
+    payload = {
+        "client_id": client_id,
+        "lang": lang or DEFAULT_LANG,
+        "source_host": "skill.chatfate",
+    }
+    data = request_json(f"{base_url}/api/agent/bootstrap", payload, timeout_sec, None)
+    if not data.get("success") or not str(data.get("access_token") or "").strip():
+        raise RuntimeError(f"Failed to bootstrap account: {json.dumps(data, ensure_ascii=False)}")
+    return data
+
+
+def resolve_auth_context(
+    args: argparse.Namespace,
+    base_url: str,
+    lang: str,
+) -> Dict[str, Any]:
+    api_key = resolve_api_key(args)
+    if api_key:
+        return {
+            "mode": "api_key",
+            "auth_token": api_key,
+            "user_id": (args.user_id or os.getenv("CHATFATE_USER_ID") or "").strip() or None,
+            "account_file": None,
+        }
+
+    state_path = state_file_path()
+    state = load_state(state_path)
+    client_id = (args.client_id or os.getenv("CHATFATE_CLIENT_ID") or "").strip() or ensure_client_id(state)
+    save_state(state_path, state)
+
+    account_path = account_file_path()
+    account = load_account_state(account_path)
+    token = str(account.get("access_token") or "").strip()
+    account_user_id = str(account.get("user_id") or "").strip() or None
+    if token:
+        return {
+            "mode": "account",
+            "auth_token": token,
+            "user_id": account_user_id,
+            "account_file": str(account_path),
+        }
+
+    boot = bootstrap_account(base_url, client_id, args.timeout_sec, lang)
+    account_payload = {
+        "base_url": base_url,
+        "client_id": client_id,
+        "user_id": (boot.get("account") or {}).get("user_id") or (boot.get("account") or {}).get("id"),
+        "access_token": boot.get("access_token"),
+        "mode": (boot.get("account") or {}).get("mode") or "anonymous",
+        "daily_limit": (boot.get("account") or {}).get("daily_limit"),
+        "used_today": (boot.get("account") or {}).get("used_today"),
+        "remaining_today": (boot.get("account") or {}).get("remaining_today"),
+        "updated_at": utc_now_iso(),
+    }
+    save_account_state(account_path, account_payload)
+    return {
+        "mode": "account",
+        "auth_token": str(boot.get("access_token") or "").strip(),
+        "user_id": str(account_payload.get("user_id") or "").strip() or None,
+        "account_file": str(account_path),
+    }
+
+
+def ensure_session(
+    args: argparse.Namespace,
+    birth_time_index: int,
+    base_url: str,
+    auth_context: Dict[str, Any],
+) -> Dict[str, Any]:
     explicit_session_id = (args.session_id or os.getenv("CHATFATE_SESSION_ID") or "").strip()
     explicit_user_id = (args.user_id or os.getenv("CHATFATE_USER_ID") or "").strip()
     explicit_anonymous_id = (args.anonymous_id or os.getenv("CHATFATE_ANONYMOUS_ID") or "").strip()
     explicit_client_id = (args.client_id or os.getenv("CHATFATE_CLIENT_ID") or "").strip()
+    auth_user_id = str((auth_context or {}).get("user_id") or "").strip()
 
     if args.no_memory:
         return {
             "session_id": explicit_session_id or None,
-            "user_id": explicit_user_id or None,
+            "user_id": auth_user_id or explicit_user_id or None,
             "client_id": explicit_client_id or None,
-            "anonymous_id": explicit_anonymous_id or explicit_client_id or None,
+            "anonymous_id": None if (auth_context or {}).get("mode") == "account" else (explicit_anonymous_id or explicit_client_id or None),
             "profile": args.profile,
             "state_file": None,
             "memory_enabled": False,
@@ -246,7 +342,7 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
         or str(entry.get("anonymous_id") or "").strip()
         or client_id
     )
-    user_id = explicit_user_id or str(entry.get("user_id") or "").strip() or None
+    user_id = auth_user_id or explicit_user_id or str(entry.get("user_id") or "").strip() or None
     session_id = explicit_session_id or None
     if not session_id and not args.new_session:
         session_id = str(entry.get("session_id") or "").strip() or None
@@ -262,7 +358,7 @@ def ensure_session(args: argparse.Namespace, birth_time_index: int, base_url: st
             create_payload["user_id"] = user_id
         else:
             create_payload["anonymous_id"] = anonymous_id
-        session_id = create_remote_session(base_url, create_payload, args.timeout_sec, api_key)
+        session_id = create_remote_session(base_url, create_payload, args.timeout_sec, auth_context.get("auth_token"))
 
     entry.update(
         {
@@ -399,10 +495,14 @@ def main() -> int:
         print("CHATFATE base URL is empty.", file=sys.stderr)
         return 2
 
-    api_key = resolve_api_key(args)
+    try:
+        auth_context = resolve_auth_context(args, base_url, args.lang or os.getenv("CHATFATE_LANG", DEFAULT_LANG))
+    except Exception as exc:
+        print(f"Failed to prepare auth: {exc}", file=sys.stderr)
+        return 1
 
     try:
-        session_meta = ensure_session(args, birth_time_index, base_url, api_key)
+        session_meta = ensure_session(args, birth_time_index, base_url, auth_context)
     except Exception as exc:
         print(f"Failed to prepare session: {exc}", file=sys.stderr)
         return 1
@@ -413,7 +513,7 @@ def main() -> int:
                 base_url,
                 build_save_payload(args, birth_time_index, session_meta, "user", args.question),
                 args.timeout_sec,
-                api_key,
+                auth_context.get("auth_token"),
             )
         except Exception as exc:
             print(f"Warning: failed to persist user message: {exc}", file=sys.stderr)
@@ -423,7 +523,7 @@ def main() -> int:
             f"{base_url}/api/fateclawd/invoke",
             build_invoke_payload(args, birth_time_index, session_meta),
             args.timeout_sec,
-            api_key,
+            auth_context.get("auth_token"),
         )
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="ignore")
@@ -448,7 +548,7 @@ def main() -> int:
                 base_url,
                 build_save_payload(args, birth_time_index, session_meta, "assistant", answer_text),
                 args.timeout_sec,
-                api_key,
+                auth_context.get("auth_token"),
             )
         except Exception as exc:
             print(f"Warning: failed to persist assistant message: {exc}", file=sys.stderr)
@@ -462,6 +562,8 @@ def main() -> int:
             "user_id": session_meta.get("user_id"),
             "memory_enabled": session_meta.get("memory_enabled"),
             "state_file": session_meta.get("state_file"),
+            "auth_mode": auth_context.get("mode"),
+            "account_file": auth_context.get("account_file"),
         }
         print(json.dumps(data, ensure_ascii=False, indent=2))
         return 0

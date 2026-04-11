@@ -20,6 +20,7 @@
 <br>
 
 `算了吗.skill` 是这个 skill 的中文名。<br>
+如果你在 GitHub 搜 `算了吗 skill`、`算了吗.skill`、`ChatFate skill`、`Claude Code 命理 skill`、`Codex 紫微 skill`，应该搜到这个仓库。<br>
 仓库名和服务名仍然是 **ChatFate**，内部安装 slug 仍然是 `chatfate`。<br>
 这样可以保持现有安装路径、API、更新方式全部稳定。<br>
 
@@ -87,9 +88,20 @@ curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
 chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py
 ```
 
+### 直接开始用
+
+普通终端用户现在不需要先去网站，也不需要先手填 API key。
+
+安装后直接提问，helper 会自动：
+
+- 在本地生成 `~/.chatfate/account.json`
+- 向 ChatFate 服务端自动注册一个匿名账户
+- 拿到本地可复用的 `account token`
+- 进入 `100/day` 的测试配额
+
 ### 配置 API key
 
-现在外部 Agent 调用默认走 `API key + credits`。
+开发者、集成方、脚本调用仍然建议走 `API key + credits`。
 
 推荐的一次性配置：
 
@@ -105,11 +117,13 @@ chmod 600 ~/.chatfate/api_key
 export CHATFATE_API_KEY="cf_sk_xxx"
 ```
 
-helper 读取顺序：
+helper 鉴权优先级：
 
 1. `--api-key`
 2. `CHATFATE_API_KEY`
 3. `~/.chatfate/api_key`
+4. `~/.chatfate/account.json` 里的 `account token`
+5. 都没有时自动匿名开户
 
 ### 更新
 
@@ -201,7 +215,7 @@ git -C ~/.codex/skills/chatfate pull
 
 - 有远程运行时，不是纯 prompt
 - 有会话记忆，不是每轮重来
-- 有 API key / credits / usage，不是散装 demo
+- 有 API key / credits / usage，也有普通终端用户直接可用的 account token
 - 有网站版、skill 版、plugin 版，不是只能在一个壳里跑
 - 后端可以继续演进 planner / evaluator / trace，而用户侧安装方式不需要变
 

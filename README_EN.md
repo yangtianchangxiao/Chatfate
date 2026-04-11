@@ -3,7 +3,7 @@
 English: `README_EN.md`  
 中文说明：`README.md` / `README_CN.md`
 
-Public release bundle for installing ChatFate as a Claude Code / Codex skill.
+Public release bundle for installing ChatFate as a Claude Code / Codex skill. Searchable keywords: 算了吗 skill, 算了吗.skill, ChatFate skill, Claude Code fate skill, Codex Ziwei skill.
 
 This directory is designed so it can either:
 
@@ -69,9 +69,11 @@ chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
 cat ~/.codex/skills/chatfate/SKILL.md
 ```
 
-After install, make your ChatFate API key available locally.
+After install, ordinary end users can start immediately without a website account or a pre-created API key. The helper will auto-bootstrap an anonymous ChatFate account, store a local `account token`, and use the current `100/day` test quota.
 
-Recommended one-time setup:
+If you are a developer or integrator, you can still provide a ChatFate API key explicitly.
+
+Recommended one-time setup for API key mode:
 
 ```bash
 mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
@@ -164,11 +166,11 @@ Minimal payload:
 }
 ```
 
-## Credits
+## Credits and auth
 
-- one `/api/fateclawd/invoke` call consumes 1 credit
-- website chat can still remain on the anonymous browser route
-- helper lookup order is: `--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key`
+- one `/api/fateclawd/invoke` call consumes 1 credit in API-key mode
+- ordinary skill users can run on account-token mode with the current `100/day` test quota
+- helper lookup order is: `--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key` -> local account token -> auto-bootstrap account
 
 ## Other bundles
 
