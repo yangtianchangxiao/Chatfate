@@ -3,7 +3,7 @@
 English: `README_EN.md`  
 中文说明：`README.md` / `README_CN.md`
 
-Public release bundle for installing ChatFate as a Claude Code / Codex skill. Searchable keywords: 算了吗 skill, 算了吗.skill, ChatFate skill, Claude Code fate skill, Codex Ziwei skill.
+Public release bundle for installing ChatFate as a Claude Code / Codex skill. Searchable keywords: 算了吗 skill, 算了吗.skill, ChatFate skill, Claude Code fate skill, Codex Sanhe Ziwei skill.
 
 This directory is designed so it can either:
 
@@ -12,7 +12,7 @@ This directory is designed so it can either:
 
 ## What it is
 
-`ChatFate` exposes fate reading as a remote skill:
+`ChatFate` exposes interactive fate consultation as a remote skill, built on the classical Chinese Sanhe-school Ziwei Doushu system, a traditional Chinese astrology framework:
 
 - the skill lives locally in Claude/Codex
 - the actual fate reading is produced by the ChatFate API

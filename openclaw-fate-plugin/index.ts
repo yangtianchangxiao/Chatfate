@@ -200,7 +200,7 @@ export default function register(api: any) {
             type: "integer",
             minimum: 0,
             maximum: 12,
-            description: "Ziwei birth hour index. Usually 0-12.",
+            description: "Birth hour index for the Sanhe-school Ziwei Doushu chart. Usually 0-12.",
           },
           gender: {
             type: "string",

@@ -1,7 +1,9 @@
 ---
 name: chatfate
 description: >-
-  Use when the user wants a Ziwei / fate reading through the ChatFate service.
+  Use when the user wants an interactive fate consultation through the
+  ChatFate service, built on the classical Chinese Sanhe-school Ziwei
+  Doushu system, a traditional Chinese astrology framework.
   Chinese-facing skill name is 算了吗. Supports past verification,
   best-year comparison, decade review, and open-ended consultation around
   career, wealth, love, family, housing, parents, travel, inner state, or
@@ -12,7 +14,7 @@ description: >-
 
 `算了吗` is the Chinese-facing skill name for ChatFate.
 
-Use this skill when the user wants a real ChatFate reading through the remote service rather than a handcrafted local answer.
+Use this skill when the user wants a real ChatFate consultation through the remote service, grounded in the classical Chinese Sanhe-school Ziwei Doushu system, a traditional Chinese astrology framework, rather than a handcrafted local answer.
 
 ## Required inputs
 
