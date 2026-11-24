@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChatFate Open Technical Specification — True Solar Time, Sanhe Zi Wei, BaZi/Saju &amp; 22-Arcana Matrix Benchmark</title>
+  <meta name="description" content="Open technical specification, equations, and reproducible verification vectors for True Solar Time calibration (53,000+ global places), Sanhe Zi Wei Dou Shu, Solar-Term Four Pillars BaZi / Korean Saju, and 22-Arcana Destiny Matrix.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://yangtianchangxiao.github.io/Chatfate/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ChatFate Open Technical Specification &amp; Reproducible Chart Benchmark">
+  <meta property="og:description" content="Deterministic equations and verification vectors for True Solar Time, Sanhe Zi Wei Dou Shu, Four Pillars BaZi / Korean Saju, and 22-Arcana Destiny Matrix.">
+  <meta property="og:url" content="https://yangtianchangxiao.github.io/Chatfate/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://chatfate.life/#organization",
+        "name": "ChatFate",
+        "url": "https://chatfate.life/",
+        "sameAs": [
+          "https://chatfate.life/",
+          "https://github.com/yangtianchangxiao/Chatfate",
+          "https://yangtianchangxiao.github.io/Chatfate/"
+        ]
+      },
+      {
+        "@type": "TechArticle",
+        "headline": "ChatFate Open Technical Specification: True Solar Time, Sanhe Zi Wei Dou Shu, Solar-Term BaZi / Saju & 22-Arcana Destiny Matrix",
+        "description": "Mathematical formulas, IANA historical DST boundary rules, and reproducible test vectors used by the ChatFate chart engine and MCP server.",
+        "datePublished": "2026-11-25",
+        "dateModified": "2026-11-25",
+        "author": { "@id": "https://chatfate.life/#organization" },
+        "publisher": { "@id": "https://chatfate.life/#organization" },
+        "mainEntityOfPage": "https://yangtianchangxiao.github.io/Chatfate/"
+      },
+      {
+        "@type": "SoftwareSourceCode",
+        "name": "chatfate-mcp",
+        "codeRepository": "https://github.com/yangtianchangxiao/Chatfate",
+        "programmingLanguage": ["JavaScript", "Python"],
+        "license": "https://opensource.org/licenses/MIT",
+        "runtimePlatform": "Node.js >= 18 / Model Context Protocol (MCP)",
+        "targetProduct": {
+          "@type": "WebApplication",
+          "name": "ChatFate Interactive Consultation Platform",
+          "url": "https://chatfate.life/"
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #0b0d14;
+      --panel: #121624;
+      --border: #232a40;
+      --text: #e8ecf4;
+      --muted: #9aa5be;
+      --accent: #eab308;
+      --link: #7dd3fc;
+      --code-bg: #080a10;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.68;
+      font-size: 16px;
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 22px 72px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 28px;
+      margin-bottom: 34px;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: clamp(1.75rem, 3.6vw, 2.4rem);
+      line-height: 1.24;
+      margin: 0 0 14px;
+    }
+    h2 {
+      font-size: 1.38rem;
+      margin: 38px 0 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 1.08rem;
+      margin: 22px 0 8px;
+      color: #f8fafc;
+    }
+    p, li { color: var(--text); }
+    .lead { color: var(--muted); font-size: 1.06rem; margin: 0 0 20px; }
+    a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: #bae6fd; }
+    .nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 7px 13px;
+      border-radius: 6px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .pill.primary {
+      background: #1e293b;
+      border-color: #38bdf8;
+      color: #f0f9ff;
+      font-weight: 600;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 18px 0;
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+    }
+    code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    pre code { border: 0; padding: 0; background: transparent; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--panel); color: #f8fafc; }
+    .muted { color: var(--muted); font-size: 14px; }
+    footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="eyebrow">Open Technical Reference &amp; Verification Benchmark · v1.2.0</span>
+      <h1>True Solar Time, Sanhe Zi Wei Dou Shu, Solar-Term BaZi / Saju &amp; 22-Arcana Destiny Matrix Specification</h1>
+      <p class="lead">
+        Published by the engineering team behind <a href="https://chatfate.life/">ChatFate</a>. Every birth chart, dual relationship synastry matrix, and 22-Arcana reduction served on our web platform and open-source Model Context Protocol (MCP) server follows deterministic, auditable equations rather than ungrounded language-model guesswork.
+      </p>
+      <nav class="nav-pills" aria-label="Primary destinations">
+        <a class="pill primary" href="https://chatfate.life/">Open Live Web App (chatfate.life)</a>
+        <a class="pill" href="https://github.com/yangtianchangxiao/Chatfate">GitHub Repo &amp; MCP Server</a>
+        <a class="pill" href="https://chatfate.life/zh/">简体中文实盘入口</a>
+        <a class="pill" href="https://chatfate.life/tw/">繁體中文入口</a>
+        <a class="pill" href="https://chatfate.life/en/">English Hub</a>
+        <a class="pill" href="https://chatfate.life/ko/">한국어 사주·자미두수</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="architecture">
+        <h2>1. Why Deterministic Engines Must Precede AI Interpretation</h2>
+        <p>
+          General-purpose large language models routinely miscalculate lunar-to-solar conversions, Jieqi (solar-term) month boundaries, historical Daylight Saving Time (DST) windows, and Zi Wei Dou Shu four-transformation (<em>Sihua</em>) placements when prompted directly in plain text. Even a single two-hour branch error moves all twelve palaces and reverses whether a chart fits lived experience.
+        </p>
+        <div class="card">
+          <strong>Core Verification Protocol ("Verify the Past First"):</strong>
+          <p class="muted" style="margin:8px 0 0;">
+            Before projecting 2027 career or relationship windows, both the <a href="https://chatfate.life/">ChatFate interactive workspace</a> and our regional hubs check 2024–2025 lived turning points against the computed natal, decadal, and annual chart dossier, allowing immediate adjacent-hour calibration when birth time falls near a double-hour boundary.
+          </p>
+        </div>
+      </section>
+
+      <section id="true-solar-time">
+        <h2>2. Global True Solar Time &amp; Historical DST Calibration (53,000+ Places)</h2>
+        <p>
+          Civil clock time reflects administrative time zones rather than the local meridian crossing of the sun. Across wide time zones—such as China Standard Time (<code>UTC+8</code>, referenced to <code>120.0°E</code>)—western cities like Chengdu (<code>104.06°E</code>) or Urumqi (<code>87.62°E</code>) lag civil clock time by more than an hour. Our <a href="https://chatfate.life/guides/true-solar-time">True Solar Time calibration guide</a> and <code>GET /api/cities</code> atlas apply three sequential steps:
+        </p>
+        <ol>
+          <li>
+            <strong>Historical IANA Daylight Saving Deduction:</strong> Using the IANA <code>ZoneInfo</code> database for the exact birth timestamp and location, any active historical summer-time shift—including PRC Summer Time (1986–1991), South Korean historical DST (1948–1960, 1987–1988), US/EU transitions, and half-hour zones (<code>UTC+5:30</code>, <code>UTC+9:30</code>)—is deducted to recover standard meridian civil time $T_{\text{std}}$.
+          </li>
+          <li>
+            <strong>Longitude Meridian Offset:</strong> Earth rotates $1^\circ$ every 4 minutes. Given local east longitude $\lambda$ and zone reference meridian $\lambda_0 = 15^\circ \times \Delta_{\text{UTC}}$:
+            <pre><code>Δt_lon (minutes) = 4.0 × (λ − λ_0)</code></pre>
+          </li>
+          <li>
+            <strong>Solar Equation of Time $E(d)$:</strong> Orbital eccentricity and axial obliquity add an seasonal offset between $-14.2$ and $+16.4$ minutes across day-of-year $d$:
+            <pre><code>T_true_solar = T_std + Δt_lon + E(d)</code></pre>
+          </li>
+        </ol>
+
+        <table>
+          <thead>
+            <tr>
+              <th>City / Benchmark Case</th>
+              <th>Civil Birth Input</th>
+              <th>Longitude &amp; DST Shift</th>
+              <th>Effective True Solar Branch</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Chengdu, China (<code>104.06°E</code>)</td>
+              <td><code>1988-07-15 09:30</code> (PRC DST active)</td>
+              <td><code>−60m</code> DST, <code>−63.8m</code> longitude, <code>−5.8m</code> EoT</td>
+              <td>Shifts from Si Hour (巳时) back to <strong>Chen Hour (辰时, 07:20)</strong></td>
+            </tr>
+            <tr>
+              <td>Seoul, South Korea (<code>126.98°E</code>)</td>
+              <td><code>1988-06-10 13:20</code> (ROK Olympic DST)</td>
+              <td><code>−60m</code> DST, <code>−32.1m</code> vs <code>135°E</code>, <code>+0.7m</code> EoT</td>
+              <td>Shifts from Wei Hour (미시) back to <strong>Wu Hour (오시, 11:49)</strong></td>
+            </tr>
+            <tr>
+              <td>Shanghai, China (<code>121.47°E</code>)</td>
+              <td><code>1992-06-23 12:15</code> (No DST)</td>
+              <td><code>0m</code> DST, <code>+5.9m</code> longitude, <code>−2.1m</code> EoT</td>
+              <td>Remains <strong>Wu Hour (午时, index 6, 12:19)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted">
+          Interactive tools: <a href="https://chatfate.life/guides/true-solar-time">True Solar Time Boundary Checker</a> · <a href="https://chatfate.life/korean-saju-calculator">Korean Saju Four Pillars Calculator</a>.
+        </p>
+      </section>
+
+      <section id="ziwei-bazi">
+        <h2>3. Orthodox Sanhe Zi Wei Dou Shu × Solar-Term Four Pillars Cross-Check</h2>
+        <p>
+          ChatFate pairs two classical East Asian frameworks over the same calibrated birth timestamp:
+        </p>
+        <ul>
+          <li>
+            <strong>Sanhe Zi Wei Dou Shu (三合派紫微斗数):</strong> Computes Life Palace (命宫) and Body Palace (身宫), places the 14 major stars plus auxiliary/sha stars with brightness ratings, links each palace to its Sanfang Sizheng triad/opposite branches <code>(b, b+4, b+6, b+8) mod 12</code>, and evaluates three-tier Sihua transformations (祿 Lu, 權 Quan, 科 Ke, 忌 Ji) across natal, 10-year decadal, and annual/lunar-month layers.
+          </li>
+          <li>
+            <strong>Solar-Term Four Pillars BaZi / Korean Saju (子平四柱八字 / 사주팔자):</strong> Anchors the Year Pillar at <em>Lichun</em> (立春) and Month Pillars at exact astronomical solar terms (<em>Jieqi</em>), deriving Day Master seasonal strength, Ten Gods (十神 / 십성), and Day-Branch (Spouse Palace) clashes, six-harmonies, three-harmonies, and punishments.
+          </li>
+          <li>
+            <strong>Dual Relationship Synastry (双人合盘 / 궁합):</strong> Exposed at <a href="https://chatfate.life/zh/fenshou-fuhe">Simplified Chinese Reunion &amp; Synastry</a>, <a href="https://chatfate.life/tw/fenshou-fuhe">Traditional Chinese Synastry</a>, and <a href="https://chatfate.life/ko/jaehoe-unse">Korean Reunion &amp; Sokmaeum Synastry</a>, comparing two birth charts without requiring exact birth hours when only birth dates are known.
+          </li>
+        </ul>
+      </section>
+
+      <section id="destiny-matrix">
+        <h2>4. Reproducible 22-Arcana Destiny Matrix &amp; Karmic Tail Benchmark</h2>
+        <p>
+          In symbolic 22-Major-Arcana numerology, integers greater than 22 reduce iteratively by summing decimal digits until landing in <code>[1, 22]</code>:
+        </p>
+        <pre><code>function reduce22(n) {
+  while (n &gt; 22) {
+    n = String(n).split('').reduce((sum, d) =&gt; sum + Number(d), 0);
+  }
+  return n;
+}</code></pre>
+        <h3>Reference Verification Vector: <code>1992-06-23</code></h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Node</th>
+              <th>Formula</th>
+              <th>Computed Value &amp; Major Arcana</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>A</code> (Day)</td>
+              <td><code>reduce22(23) → 2 + 3</code></td>
+              <td><strong>5</strong> — The Hierophant</td>
+            </tr>
+            <tr>
+              <td><code>B</code> (Month)</td>
+              <td><code>reduce22(6)</code></td>
+              <td><strong>6</strong> — The Lovers</td>
+            </tr>
+            <tr>
+              <td><code>C</code> (Year)</td>
+              <td><code>reduce22(1 + 9 + 9 + 2 = 21)</code></td>
+              <td><strong>21</strong> — The World</td>
+            </tr>
+            <tr>
+              <td><code>D</code> (Bottom / Karmic Root)</td>
+              <td><code>reduce22(A + B + C = 32) → 3 + 2</code></td>
+              <td><strong>5</strong> — The Hierophant</td>
+            </tr>
+            <tr>
+              <td><code>X</code> (Center Comfort Zone)</td>
+              <td><code>reduce22(A + B + C + D = 37) → 3 + 7</code></td>
+              <td><strong>10</strong> — Wheel of Fortune</td>
+            </tr>
+            <tr>
+              <td><code>D2 – D1 – D</code> (Karmic Tail)</td>
+              <td><code>D2 = reduce22(D + X = 15)</code>, <code>D1 = reduce22(D + D2 = 20)</code></td>
+              <td><strong>15 – 20 – 5</strong> (The Devil · Judgement · The Hierophant)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Explore interactive SVG octagons and triad interpretations directly at:
+          <a href="https://chatfate.life/destiny-matrix-calculator">22-Arcana Destiny Matrix Calculator</a> ·
+          <a href="https://chatfate.life/karmic-tail-calculator">Karmic Tail Calculator</a> ·
+          <a href="https://chatfate.life/destiny-matrix-compatibility">Composite Couple Matrix Calculator</a>.
+        </p>
+      </section>
+
+      <section id="mcp-developers">
+        <h2>5. Open-Source MCP Server, Agent Skill &amp; Machine Discovery</h2>
+        <p>
+          Developers building with Claude Desktop, Claude Code, OpenAI Codex, Cursor, Windsurf, or OpenClaw can run our zero-dependency MCP server directly from GitHub:
+        </p>
+        <pre><code>{
+  "mcpServers": {
+    "chatfate": {
+      "command": "npx",
+      "args": ["-y", "github:yangtianchangxiao/Chatfate"]
+    }
+  }
+}</code></pre>
+        <ul>
+          <li><strong>GitHub Repository (MIT):</strong> <a href="https://github.com/yangtianchangxiao/Chatfate">github.com/yangtianchangxiao/Chatfate</a></li>
+          <li><strong>HTTP API &amp; Integration Guide:</strong> <a href="https://chatfate.life/developers">chatfate.life/developers</a></li>
+          <li><strong>LLM / AI Grounding Manifests:</strong> <a href="https://chatfate.life/llms.txt">chatfate.life/llms.txt</a> · <a href="https://chatfate.life/llms-full.txt">chatfate.life/llms-full.txt</a> · <a href="https://chatfate.life/about">Editorial &amp; Methodological Standards</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        &copy; 2026 <a href="https://chatfate.life/">ChatFate</a>. Open-source SDK &amp; MCP server licensed under MIT. Traditional chart computation and symbolic numerology are offered for cultural exploration and personal reflection, not medical, legal, or financial advice.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

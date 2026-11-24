@@ -1,0 +1,48 @@
+{
+  "name": "chatfate-mcp",
+  "version": "1.2.0",
+  "description": "Model Context Protocol (MCP) server and AI Agent Skill for True Solar Time Sanhe Zi Wei Dou Shu, Solar-Term Four Pillars BaZi / Korean Saju, Dual Relationship Synastry, and 22-Arcana Destiny Matrix calculations.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://chatfate.life",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yangtianchangxiao/Chatfate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yangtianchangxiao/Chatfate/issues"
+  },
+  "bin": {
+    "chatfate-mcp": "./mcp/server.mjs"
+  },
+  "files": [
+    "mcp/",
+    "scripts/",
+    "SKILL.md",
+    "README.md",
+    "README_EN.md",
+    "README_CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node ./mcp/server.mjs",
+    "test": "node ./mcp/server.mjs --self-test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "claude-skills",
+    "agent-skills",
+    "astrology",
+    "ziwei-doushu",
+    "bazi",
+    "saju",
+    "destiny-matrix",
+    "true-solar-time",
+    "synastry"
+  ]
+}

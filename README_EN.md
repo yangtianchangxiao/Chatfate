@@ -1,183 +1,97 @@
-# ChatFate
+# ChatFate — True Solar Time Zi Wei Dou Shu, BaZi / Korean Saju & Destiny Matrix (MCP Server + Agent Skill)
 
-English: `README_EN.md`  
-中文说明：`README.md` / `README_CN.md`
+[![Live Web Platform](https://img.shields.io/badge/Web%20Platform-chatfate.life-d97706)](https://chatfate.life/en/)
+[![Open Technical Spec](https://img.shields.io/badge/Technical%20Benchmark-GitHub%20Pages-0f766e)](https://yangtianchangxiao.github.io/Chatfate/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-16a34a)](./LICENSE)
 
-Public release bundle for installing ChatFate as a Claude Code / Codex skill. Searchable keywords: 算了吗 skill, 算了吗.skill, ChatFate skill, Claude Code fate skill, Codex Sanhe Ziwei skill.
+**ChatFate** combines a **no-signup interactive web consultation platform** ([https://chatfate.life/](https://chatfate.life/)) with an open-source **Model Context Protocol (MCP) Server**, **Claude Code / Codex Skill**, and **OpenClaw Plugin**.
 
-This directory is designed so it can either:
+Instead of asking LLMs to guess astronomical pillars or star placements in raw text prompts, ChatFate computes exact **Sanhe Zi Wei Dou Shu (紫微斗数)** twelve-palace charts, **Solar-Term Four Pillars BaZi / Korean Saju (사주팔자)**, **Dual Relationship Synastry**, and **22-Arcana Destiny Matrix & Karmic Tail** charts deterministically.
 
-1. live inside a monorepo during iteration, or
-2. be published as its own public GitHub repository.
+---
 
-## Try it first
+## Try Immediately in Browser (No Signup, Zero Redirect)
 
-If you want the fastest way to try the experience before installing any skill, go directly to:
+- **English Hub**: [https://chatfate.life/en/](https://chatfate.life/en/)
+- **22-Arcana Destiny Matrix Calculator**: [https://chatfate.life/destiny-matrix-calculator](https://chatfate.life/destiny-matrix-calculator)
+- **Karmic Tail Calculator (`15-20-5`, `18-9-9`, etc.)**: [https://chatfate.life/karmic-tail-calculator](https://chatfate.life/karmic-tail-calculator)
+- **Destiny Matrix Couple Compatibility**: [https://chatfate.life/destiny-matrix-compatibility](https://chatfate.life/destiny-matrix-compatibility)
+- **Korean Saju Four Pillars Calculator (in English)**: [https://chatfate.life/korean-saju-calculator](https://chatfate.life/korean-saju-calculator)
+- **True Solar Time & Longitude Guide**: [https://chatfate.life/guides/true-solar-time](https://chatfate.life/guides/true-solar-time)
+- **Multilingual Hubs**: [简体中文 `/zh/`](https://chatfate.life/zh/) · [繁體中文 `/tw/`](https://chatfate.life/tw/) · [한국어 `/ko/`](https://chatfate.life/ko/)
+- **Open Technical Specification & Reproducible Benchmark**: [https://yangtianchangxiao.github.io/Chatfate/](https://yangtianchangxiao.github.io/Chatfate/)
+- **Machine-Readable LLM Reference**: [https://chatfate.life/llms.txt](https://chatfate.life/llms.txt) · [Developer API Docs](https://chatfate.life/developers)
 
-- `https://chatfate.life/`
+---
 
-## What it is
+## 1. Model Context Protocol (MCP) Server
 
-`ChatFate` exposes interactive fate consultation as a remote skill, built on the classical Chinese Sanhe-school Ziwei Doushu system, a traditional Chinese astrology framework:
+`mcp/server.mjs` is a zero-dependency Node.js (>= 18) stdio MCP server supporting both newline-delimited JSON-RPC (`2024-11-05` / `2025-03-26`) and `Content-Length` framing.
 
-- the skill lives locally in Claude/Codex
-- the actual fate reading is produced by the ChatFate API
-- the backend can evolve without changing the user workflow
-- API keys, credits, usage tracking, and memory stay on the server side
-
-## Install
-
-### Recommended install: clone this repo as a skill
-
-#### Claude Code
-
-```bash
-mkdir -p ~/.claude/skills && \
-git clone https://github.com/yangtianchangxiao/Chatfate ~/.claude/skills/chatfate
-```
-
-#### Codex
-
-```bash
-mkdir -p ~/.codex/skills && \
-git clone https://github.com/yangtianchangxiao/Chatfate ~/.codex/skills/chatfate
-```
-
-### Hosted install: skill + helper script
-
-Canonical hosted files:
-
-- `https://chatfate.life/skills/chatfate/SKILL.md`
-- `https://chatfate.life/skills/chatfate/scripts/chatfate_query.py`
-- `https://chatfate.life/developers`
-
-#### Claude Code
-
-```bash
-mkdir -p ~/.claude/skills/chatfate/scripts && \
-curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
-  -o ~/.claude/skills/chatfate/SKILL.md && \
-curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
-  -o ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.claude/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.claude/skills/chatfate/SKILL.md
-```
-
-#### Codex
-
-```bash
-mkdir -p ~/.codex/skills/chatfate/scripts && \
-curl -fsSL https://chatfate.life/skills/chatfate/SKILL.md \
-  -o ~/.codex/skills/chatfate/SKILL.md && \
-curl -fsSL https://chatfate.life/skills/chatfate/scripts/chatfate_query.py \
-  -o ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-chmod +x ~/.codex/skills/chatfate/scripts/chatfate_query.py && \
-cat ~/.codex/skills/chatfate/SKILL.md
-```
-
-After install, ordinary end users can start immediately without a website account or a pre-created API key. The helper will auto-bootstrap an anonymous ChatFate account, store a local `account token`, and use the current `100/day` test quota.
-
-If you are a developer or integrator, you can still provide a ChatFate API key explicitly.
-
-Recommended one-time setup for API key mode:
-
-```bash
-mkdir -p ~/.chatfate && chmod 700 ~/.chatfate && \
-printf '%s' 'cf_sk_xxx' > ~/.chatfate/api_key && \
-chmod 600 ~/.chatfate/api_key
-```
-
-Alternative:
-
-```bash
-export CHATFATE_API_KEY="cf_sk_xxx"
-```
-
-## Example prompts
-
-- `Analyze my career.`
-- `Review my last ten years.`
-- `Which year is strongest for my wealth?`
-- `Look at my long-term relationship trend.`
-- `Analyze my family and housing for the next decade.`
-
-## How end users should use it
-
-Recommended guidance:
-
-1. first turn: provide birth info and one real question
-2. follow-up turns: ask naturally without repeating the whole template
-3. same chart, new topic: open a separate thread
-4. clean restart: explicitly ask for a fresh consultation
-
-Good first-turn examples:
-
-- `I was born on 1990-06-15 at 子时, male. First analyze my career structure.`
-- `Review the most important changes in my last ten years.`
-- `Look only at my family and housing trend for the next decade.`
-
-## Required inputs
-
-The skill needs:
-
-- `birth_date` in `YYYY-MM-DD`
-- `birth_time` as one of:
-  - numeric index `0-12`
-  - `子时 / 丑时 / ... / 亥时`
-  - short label `子 / 丑 / ... / 亥`
-- `gender` as `male` or `female`
-- the question itself
-
-## Memory and continuity
-
-There are two different kinds of memory:
-
-1. agent thread memory  
-The local agent itself remembers prior turns in the same conversation.
-
-2. server-side session memory  
-ChatFate uses `session_id`, `client_id`, `user_id`, and `anonymous_id` to keep remote continuity.
-
-The helper automatically:
-
-- persists a local state file at `~/.chatfate/sessions.json`
-- generates one stable local `client_id`
-- reuses the same remote session for the same `birth_date + birth_time_index + gender + profile`
-- creates a new remote session when needed
-- saves both user and assistant messages through `/api/chat/save`
-- defaults `anonymous_id = client_id` for backward-compatible anonymous memory
-
-## API shape
-
-Current request target:
-
-```text
-POST https://chatfate.life/api/fateclawd/invoke
-```
-
-Headers:
-
-```text
-X-ChatFate-Key: cf_sk_xxx
-```
-
-Minimal payload:
+### Configuration (`claude_desktop_config.json`, Claude Code, Cursor, Windsurf)
 
 ```json
 {
-  "birth_date": "1990-06-15",
-  "birth_time_index": 0,
-  "gender": "male",
-  "question": "Analyze my career"
+  "mcpServers": {
+    "chatfate": {
+      "command": "npx",
+      "args": ["-y", "github:yangtianchangxiao/Chatfate"]
+    }
+  }
 }
 ```
 
-## Credits and auth
+### Exposed MCP Tools
 
-- one `/api/fateclawd/invoke` call consumes 1 credit in API-key mode
-- ordinary skill users can run on account-token mode with the current `100/day` test quota
-- helper lookup order is: `--api-key` -> `CHATFATE_API_KEY` -> `~/.chatfate/api_key` -> local account token -> auto-bootstrap account
+| Tool | Description |
+| :--- | :--- |
+| `calculate_ziwei_bazi_chart` | Computes a True Solar Time Sanhe Zi Wei Dou Shu 12-palace chart + Solar-Term Four Pillars BaZi / Saju chart across 53,000+ global places with historical IANA DST calibration. |
+| `calculate_relationship_synastry` | Compares two birth charts via BaZi Day-Pillar chemistry, Zi Wei cross-chart Sihua transformations, and a composite 22-Arcana Destiny Matrix. |
+| `calculate_destiny_matrix` | Offline deterministic 22-Major-Arcana octagon, Center Comfort Zone, Karmic Tail (`D2-D1-D`), Love & Money channels, and Personal Purpose from any Gregorian date (`1800–2200`). |
+| `search_true_solar_city` | Resolves `city_id`, exact longitude, and `iana_timezone` from ChatFate's 53,000+ global city/county atlas. |
 
-## Other bundles
+Verify locally:
 
-This repo also includes an OpenClaw plugin source bundle under `openclaw-fate-plugin/` for hosts that prefer plugin-style integration over `SKILL.md`.
+```bash
+node ./mcp/server.mjs --self-test
+```
+
+---
+
+## 2. Claude Code / Codex / Agent Skill Installation
+
+### Using `skills` CLI
+
+```bash
+npx skills add yangtianchangxiao/Chatfate
+```
+
+### Manual Clone (Claude Code or Codex)
+
+```bash
+# Claude Code
+mkdir -p ~/.claude/skills && git clone https://github.com/yangtianchangxiao/Chatfate ~/.claude/skills/chatfate
+
+# OpenAI Codex
+mkdir -p ~/.codex/skills && git clone https://github.com/yangtianchangxiao/Chatfate ~/.codex/skills/chatfate
+```
+
+### Multi-Turn CLI Consultation Helper
+
+```bash
+python3 scripts/chatfate_query.py \
+  --birth-date 1992-06-23 \
+  --birth-time 6 \
+  --gender male \
+  --question "Verify my 2024-2025 career shifts first, then compare my 2027 pivot windows."
+```
+
+---
+
+## Scope & Ethical Boundaries
+
+ChatFate separates **deterministic astronomical/calendrical computation** (longitude equation of time, solar terms, iztro star tables, modulo-22 digital root reduction) from **symbolic cultural interpretation**. Outputs are designed for cultural exploration and personal reflection, never as medical, legal, financial, or clinical advice.
+
+## License
+
+MIT License — see [LICENSE](./LICENSE).
